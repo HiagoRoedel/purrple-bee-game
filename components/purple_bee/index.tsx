@@ -4,28 +4,14 @@ import { Bug, X } from 'lucide-react';
 
 type Symbol = '🐝' | '🍒' | '🔔' | '⭐' | '💎' | '7️⃣' | '🍋' | '🍀' | '🎰' | '🃏';
 
-// Added multiple bees to increase probability
-const SYMBOLS: Symbol[] = ['🐝', '🐝', '🐝', '🐝', '🐝', '🍒', '🔔', '⭐', '💎', '7️⃣', '🍋', '🍀', '🎰', '🃏'];
+const SYMBOLS: Symbol[] = ['🐝', '🍒', '🔔', '⭐', '💎', '7️⃣', '🍋', '🍀', '🎰', '🃏'];
 
 function PurpleBee() {
-  const [slots, setSlots] = useState<Symbol[]>(['🐝', '🍒', '🔔', '⭐', '💎', '🍋', '🍀', '🎰', '🃏']);
+  const [slots, setSlots] = useState<Symbol[]>(Array(9).fill('🐝') as Symbol[]);
   const [isSpinning, setIsSpinning] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [spins, setSpins] = useState(0);
   const [showModal, setShowModal] = useState(false);
-
-  const checkWin = (results: Symbol[]) => {
-    // Check all rows for three bees
-    const rows = [
-      [0, 1, 2], // First row
-      [3, 4, 5], // Second row
-      [6, 7, 8]  // Third row
-    ];
-
-    return rows.some(row => 
-      row.every(index => results[index] === '🐝')
-    );
-  };
 
   const spin = useCallback(() => {
     if (isSpinning) return;
@@ -33,28 +19,37 @@ function PurpleBee() {
     setIsSpinning(true);
     setResult(null);
     setShowModal(false);
-    setSpins(prev => prev + 1);
+    setSpins((prev) => prev + 1);
 
-    // Simulate spinning animation
     const intervalId = setInterval(() => {
-      setSlots(prevSlots => 
-        Array(9).fill(null).map(() => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)])
-      );
+      setSlots(Array(9).fill(null).map(() => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]));
     }, 100);
 
-    // Stop spinning after 2 seconds
     setTimeout(() => {
       clearInterval(intervalId);
-      const finalSlots = Array.from({ length: 9 }, 
-        () => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
-      ) as Symbol[];
-      
+
+      const finalSlots: Symbol[] = Array(9).fill(null) as Symbol[];
+      const shouldHaveBees = Math.random() < 0.3; // 70% de chance de ganhar
+      const chosenRow = shouldHaveBees ? Math.floor(Math.random() * 3) : null; // Se ganhar, escolhe uma linha aleatória
+
+      for (let i = 0; i < 3; i++) {
+        if (i === chosenRow) {
+          // Se for a linha escolhida, coloca três 🐝🐝🐝
+          finalSlots[i * 3] = '🐝';
+          finalSlots[i * 3 + 1] = '🐝';
+          finalSlots[i * 3 + 2] = '🐝';
+        } else {
+          // As outras linhas são totalmente aleatórias
+          finalSlots[i * 3] = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+          finalSlots[i * 3 + 1] = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+          finalSlots[i * 3 + 2] = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+        }
+      }
+
       setSlots(finalSlots);
       setIsSpinning(false);
 
-      // Check for win condition
-      if (checkWin(finalSlots)) {
-        
+      if (shouldHaveBees) {
         setShowModal(true);
       } else {
         setResult('Tente novamente!');
@@ -62,7 +57,6 @@ function PurpleBee() {
     }, 2000);
   }, [isSpinning]);
 
-  // Keyboard support
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
@@ -78,8 +72,8 @@ function PurpleBee() {
   }, [spin, showModal]);
 
   return (
-    <div className="min-h-screen bg-[#3A0057] flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full bg-[#6A0DAD] rounded-2xl shadow-2xl p-8 border-4 border-[#FFD700]">
+    <div className="h-[100vh] bg-[#3A0057] flex items-center justify-center p-4">
+      <div className="max-w-[500px] w-full bg-[#6A0DAD] rounded-2xl shadow-2xl p-8 border-4 border-[#FFD700]">
         <div className="flex items-center justify-center gap-2 mb-8">
           <Bug className="w-8 h-8 text-[#FFD700]" />
           <h1 className="text-3xl font-bold text-white">Jogo da Abelha</h1>
@@ -128,15 +122,14 @@ function PurpleBee() {
           </div>
         )}
 
-        <div className="mt-6 text-center text-white">
+        {/* <div className="mt-6 text-center text-white">
           Total de jogadas: {spins}
-        </div>
+        </div> */}
 
         <div className="mt-4 text-center text-sm text-[#FFD700]">
           Pressione a barra de espaço para girar
         </div>
 
-        {/* Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl p-8 max-w-md w-full relative transform transition-all duration-300 scale-100 animate-fadeIn">

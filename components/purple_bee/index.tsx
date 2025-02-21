@@ -100,7 +100,7 @@ function PurpleBee() {
       <div className="flex items-center gap-4 mb-6">
       <Image alt='logo-unica' src='/logo-unica.webp' width={175} height={175} />
       <div className="h-16 w-1 bg-white"></div>
-      <div className="text-white font-Krona font-bold text-xl flex text-center">Ganhe descontos <br />exclusivos</div>
+      <div className="text-white font-Krona font-bold text-xl flex text-start">Ganhe descontos <br />exclusivos</div>
       </div>
       <div className="max-w-[400px] w-full bg-[#6A0DAD] rounded-2xl shadow-2xl p-8 border-4 border-[#FFD700]">
       

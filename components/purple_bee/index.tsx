@@ -15,23 +15,23 @@ function PurpleBee() {
   const [showModal, setShowModal] = useState(false);
 
   // Verifica e reseta o contador diariamente
-  // useEffect(() => {
-  //   const storedData = localStorage.getItem('purpleBeeSpins');
-  //   const today = new Date().toDateString(); // Garante que a data é resetada a cada dia
+  useEffect(() => {
+    const storedData = localStorage.getItem('purpleBeeSpins');
+    const today = new Date().toDateString(); // Garante que a data é resetada a cada dia
 
-  //   if (storedData) {
-  //     const { lastSpinDate, spinCount } = JSON.parse(storedData);
-  //     if (lastSpinDate === today) {
-  //       setSpins(spinCount);
-  //     } else {
-  //       // Resetar os giros se for um novo dia
-  //       localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
-  //       setSpins(0);
-  //     }
-  //   } else {
-  //     localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
-  //   }
-  // }, []);
+    if (storedData) {
+      const { lastSpinDate, spinCount } = JSON.parse(storedData);
+      if (lastSpinDate === today) {
+        setSpins(spinCount);
+      } else {
+        // Resetar os giros se for um novo dia
+        localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
+        setSpins(0);
+      }
+    } else {
+      localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
+    }
+  }, []);
 
   const spin = useCallback(() => {
     if (isSpinning || spins >= 3) return;
@@ -128,11 +128,11 @@ function PurpleBee() {
         <button
           onClick={spin}
           // || spins >= 3
-          disabled={isSpinning }
+          disabled={isSpinning || spins >= 3 }
           className={`
             w-full py-4 px-8 rounded-lg text-xl font-bold
             transition-all duration-200 transform
-            ${isSpinning 
+            ${isSpinning || spins >= 3
               ? 'bg-gray-500 text-white cursor-not-allowed'
               : 'bg-[#FFD700] text-[#3A0057] hover:bg-[#FFC300] hover:scale-105 shadow-lg'
             }
@@ -140,7 +140,7 @@ function PurpleBee() {
           `}
         >
           {isSpinning ? 'Girando' : 'Girar'}
-          {/* {spins >= 3 ? 'Limite diário atingido' : isSpinning ? 'Girando...' : 'Girar'} */}
+          {spins >= 3 ? 'Limite diário atingido' : isSpinning ? 'Girando...' : 'Girar'}
         </button>
 
         <div className="mt-6 text-center text-white">

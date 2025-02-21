@@ -1,6 +1,7 @@
 'use client'
 import React, { useState, useCallback, useEffect } from 'react';
 import { Bug, X } from 'lucide-react';
+import Image from 'next/image';
 
 type Symbol = '🐝' | '🍒' | '🔔' | '⭐' | '💎' | '7️⃣' | '🍋' | '🍀' | '🎰' | '🃏';
 
@@ -14,23 +15,23 @@ function PurpleBee() {
   const [showModal, setShowModal] = useState(false);
 
   // Verifica e reseta o contador diariamente
-  useEffect(() => {
-    const storedData = localStorage.getItem('purpleBeeSpins');
-    const today = new Date().toDateString(); // Garante que a data é resetada a cada dia
+  // useEffect(() => {
+  //   const storedData = localStorage.getItem('purpleBeeSpins');
+  //   const today = new Date().toDateString(); // Garante que a data é resetada a cada dia
 
-    if (storedData) {
-      const { lastSpinDate, spinCount } = JSON.parse(storedData);
-      if (lastSpinDate === today) {
-        setSpins(spinCount);
-      } else {
-        // Resetar os giros se for um novo dia
-        localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
-        setSpins(0);
-      }
-    } else {
-      localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
-    }
-  }, []);
+  //   if (storedData) {
+  //     const { lastSpinDate, spinCount } = JSON.parse(storedData);
+  //     if (lastSpinDate === today) {
+  //       setSpins(spinCount);
+  //     } else {
+  //       // Resetar os giros se for um novo dia
+  //       localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
+  //       setSpins(0);
+  //     }
+  //   } else {
+  //     localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
+  //   }
+  // }, []);
 
   const spin = useCallback(() => {
     if (isSpinning || spins >= 3) return;
@@ -95,11 +96,17 @@ function PurpleBee() {
   }, [spin, showModal]);
 
   return (
-    <div className="h-[100vh] bg-[#3A0057] flex items-center justify-center p-4">
-      <div className="max-w-[500px] w-full bg-[#6A0DAD] rounded-2xl shadow-2xl p-8 border-4 border-[#FFD700]">
+    <div className="h-[100vh] bg-[#3A0057] flex flex-col items-center justify-center p-4">
+      <div className="flex items-center gap-4 mb-6">
+      <Image alt='logo-unica' src='/logo-unica.webp' width={175} height={175} />
+      <div className="h-16 w-1 bg-white"></div>
+      <div className="text-white font-Krona font-bold text-xl flex text-center">Ganhe descontos <br />exclusivos</div>
+      </div>
+      <div className="max-w-[400px] w-full bg-[#6A0DAD] rounded-2xl shadow-2xl p-8 border-4 border-[#FFD700]">
+      
         <div className="flex items-center justify-center gap-2 mb-8">
           <Bug className="w-8 h-8 text-[#FFD700]" />
-          <h1 className="text-3xl font-bold text-white">Jogo da Abelha</h1>
+          <h1 className="text-3xl font-bold text-white">Purple Bee</h1>
         </div>
 
         <div className="grid grid-cols-3 gap-4 mb-8">
@@ -120,17 +127,20 @@ function PurpleBee() {
 
         <button
           onClick={spin}
-          disabled={isSpinning || spins >= 3}
+          // || spins >= 3
+          disabled={isSpinning }
           className={`
             w-full py-4 px-8 rounded-lg text-xl font-bold
             transition-all duration-200 transform
-            ${isSpinning || spins >= 3
+            ${isSpinning 
               ? 'bg-gray-500 text-white cursor-not-allowed'
               : 'bg-[#FFD700] text-[#3A0057] hover:bg-[#FFC300] hover:scale-105 shadow-lg'
             }
+              
           `}
         >
-          {spins >= 3 ? 'Limite diário atingido' : isSpinning ? 'Girando...' : 'Girar'}
+          {isSpinning ? 'Girando' : 'Girar'}
+          {/* {spins >= 3 ? 'Limite diário atingido' : isSpinning ? 'Girando...' : 'Girar'} */}
         </button>
 
         <div className="mt-6 text-center text-white">

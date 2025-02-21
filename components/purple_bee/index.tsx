@@ -9,17 +9,42 @@ const SYMBOLS: Symbol[] = ['🐝', '🍒', '🔔', '⭐', '💎', '7️⃣', '�
 function PurpleBee() {
   const [slots, setSlots] = useState<Symbol[]>(Array(9).fill('🐝') as Symbol[]);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
+  const [, setResult] = useState<string | null>(null);
   const [spins, setSpins] = useState(0);
   const [showModal, setShowModal] = useState(false);
 
+  // Verifica e reseta o contador diariamente
+  useEffect(() => {
+    const storedData = localStorage.getItem('purpleBeeSpins');
+    const today = new Date().toDateString(); // Garante que a data é resetada a cada dia
+
+    if (storedData) {
+      const { lastSpinDate, spinCount } = JSON.parse(storedData);
+      if (lastSpinDate === today) {
+        setSpins(spinCount);
+      } else {
+        // Resetar os giros se for um novo dia
+        localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
+        setSpins(0);
+      }
+    } else {
+      localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
+    }
+  }, []);
+
   const spin = useCallback(() => {
-    if (isSpinning) return;
+    if (isSpinning || spins >= 3) return;
 
     setIsSpinning(true);
     setResult(null);
     setShowModal(false);
-    setSpins((prev) => prev + 1);
+    setSpins((prev) => {
+      const newSpinCount = prev + 1;
+      const today = new Date().toDateString();
+
+      localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: newSpinCount }));
+      return newSpinCount;
+    });
 
     const intervalId = setInterval(() => {
       setSlots(Array(9).fill(null).map(() => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]));
@@ -29,17 +54,15 @@ function PurpleBee() {
       clearInterval(intervalId);
 
       const finalSlots: Symbol[] = Array(9).fill(null) as Symbol[];
-      const shouldHaveBees = Math.random() < 0.3; // 70% de chance de ganhar
-      const chosenRow = shouldHaveBees ? Math.floor(Math.random() * 3) : null; // Se ganhar, escolhe uma linha aleatória
+      const shouldHaveBees = Math.random() < 0.3; // 30% de chance de ganhar
+      const chosenRow = shouldHaveBees ? Math.floor(Math.random() * 3) : null;
 
       for (let i = 0; i < 3; i++) {
         if (i === chosenRow) {
-          // Se for a linha escolhida, coloca três 🐝🐝🐝
           finalSlots[i * 3] = '🐝';
           finalSlots[i * 3 + 1] = '🐝';
           finalSlots[i * 3 + 2] = '🐝';
         } else {
-          // As outras linhas são totalmente aleatórias
           finalSlots[i * 3] = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
           finalSlots[i * 3 + 1] = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
           finalSlots[i * 3 + 2] = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
@@ -55,7 +78,7 @@ function PurpleBee() {
         setResult('Tente novamente!');
       }
     }, 2000);
-  }, [isSpinning]);
+  }, [isSpinning, spins]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -97,34 +120,22 @@ function PurpleBee() {
 
         <button
           onClick={spin}
-          disabled={isSpinning}
+          disabled={isSpinning || spins >= 3}
           className={`
             w-full py-4 px-8 rounded-lg text-xl font-bold
             transition-all duration-200 transform
-            ${isSpinning
+            ${isSpinning || spins >= 3
               ? 'bg-gray-500 text-white cursor-not-allowed'
               : 'bg-[#FFD700] text-[#3A0057] hover:bg-[#FFC300] hover:scale-105 shadow-lg'
             }
           `}
         >
-          {isSpinning ? 'Girando...' : 'Girar'}
+          {spins >= 3 ? 'Limite diário atingido' : isSpinning ? 'Girando...' : 'Girar'}
         </button>
 
-        {result && (
-          <div className={`
-            mt-6 p-4 rounded-lg text-center text-xl font-bold shadow-lg
-            ${result.includes('Parabéns')
-              ? 'bg-[#FFD700] text-[#3A0057] animate-pulse'
-              : 'bg-red-900 text-white'
-            }
-          `}>
-            {result}
-          </div>
-        )}
-
-        {/* <div className="mt-6 text-center text-white">
-          Total de jogadas: {spins}
-        </div> */}
+        <div className="mt-6 text-center text-white">
+          Tentativas restantes: {3 - spins}
+        </div>
 
         <div className="mt-4 text-center text-sm text-[#FFD700]">
           Pressione a barra de espaço para girar

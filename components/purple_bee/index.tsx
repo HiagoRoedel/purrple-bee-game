@@ -14,17 +14,15 @@ function PurpleBee() {
   const [spins, setSpins] = useState(0);
   const [showModal, setShowModal] = useState(false);
 
-  // Verifica e reseta o contador diariamente
   useEffect(() => {
     const storedData = localStorage.getItem('purpleBeeSpins');
-    const today = new Date().toDateString(); // Garante que a data é resetada a cada dia
+    const today = new Date().toDateString();
 
     if (storedData) {
       const { lastSpinDate, spinCount } = JSON.parse(storedData);
       if (lastSpinDate === today) {
         setSpins(spinCount);
       } else {
-        // Resetar os giros se for um novo dia
         localStorage.setItem('purpleBeeSpins', JSON.stringify({ lastSpinDate: today, spinCount: 0 }));
         setSpins(0);
       }
